@@ -1,7 +1,7 @@
 
 module.exports = {
-  ownerNumber: '6281262253187',
-  ownerLid: '152797941100661',
+  ownerNumber: '628xxxxxxxxx',
+  ownerLid: '1uuuiiidkiiiiiiklkkkkkk',
   botName: 'RyouBot',
   authorName: 'shura',
   defaultLimitQuota: 50,
