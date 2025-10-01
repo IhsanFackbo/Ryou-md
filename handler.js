@@ -1,31 +1,21 @@
-// handler.js
-// Clean & robust: owner/premium unlimited, FREE uses GLOBAL limit (per plugin cost)
-// Require register by default, premium by LID/phone, deny => image, hot-reload,
-// midnight reset (00:00) with simple box header.
-// Expose global.USAGE, global.USERDB, global.PREMIUM for plugins.
-
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
 const config = require('./config');
 
-// ===== Prefixes =====
 const PREFIXES = Array.isArray(config.prefixes) && config.prefixes.length
   ? config.prefixes.map(String)
   : ['.', '!'];
 
-// ===== Baileys normalizer (@lid -> @s.whatsapp.net) =====
 let jidNormalizedUser = (j) => j;
 try { ({ jidNormalizedUser } = require('@whiskeysockets/baileys')); } catch {}
 
-// ===== OPTIONAL status logger =====
 let logMessageStatus;
 try {
   const m = require('./logs/messageStatus');
   if (m && typeof m.logMessageStatus === 'function') logMessageStatus = m.logMessageStatus;
 } catch { /* ignore */ }
 
-// ===== Unwrap wrappers (ephemeral/viewOnce/etc) =====
 function unwrap(msg) {
   if (!msg) return {};
   if (msg.ephemeralMessage) return unwrap(msg.ephemeralMessage.message);
@@ -35,8 +25,6 @@ function unwrap(msg) {
   if (msg.documentWithCaptionMessage) return unwrap(msg.documentWithCaptionMessage.message);
   return msg;
 }
-
-// ===== Body & sender =====
 function getBody(m) {
   const msg = unwrap(m?.message || {});
   return (
@@ -69,9 +57,8 @@ function getSenderJid(m) {
   return j;
 }
 
-// ===== Helpers: normalize & roles =====
 function isGroup(jid) { return typeof jid === 'string' && jid.endsWith('@g.us'); }
-function normNum(x) {                       // digit only, remove device tag & domain
+function normNum(x) {                       
   if (!x) return '';
   const left = String(x).split('@')[0].split(':')[0];
   return left.replace(/\D/g, '');
@@ -147,10 +134,6 @@ function incTotalBy(user, count) {
   return { used: cur };
 }
 
-// ==== Register / Premium helpers (DB or memory) ====
-// ==== Register / Premium helpers (DB or memory) ====
-// ... isRegistered(user) {...}
-// sudah ada:
 function isRegistered(user) {
   if (DB?.isRegistered) return DB.isRegistered(user);
   return memRegistered.has(normNum(user));
@@ -160,15 +143,13 @@ function registerUser(user) {
   memRegistered.add(normNum(user));
   return true;
     }
-// >>>> TAMBAHKAN INI <<<<
+// >>>> TAMBAHAN <<<<
 function unregisterUser(user) {
-  // Kalau DB kamu punya method unregisterUser, pakai itu
   if (DB?.unregisterUser) return DB.unregisterUser(user);
-  // Mode memori: hapus dari set registered + bersihkan usage & total
   const key = normNum(user);
   memRegistered.delete(key);
-  memTotal.delete(user);      // total global
-  memUsage.delete(user);      // per-feature usage map untuk user tsb
+  memTotal.delete(user);     
+  memUsage.delete(user);      
   return true;
 }
 function isPremium(userJid) {
