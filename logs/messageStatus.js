@@ -11,8 +11,7 @@ function pickText(m) {
     msg.imageMessage?.caption ||
     msg.videoMessage?.caption ||
     msg.documentMessage?.caption || // lebih umum di Baileys
-    msg.documentWithCaptionMessage?.message?.caption || // kalau tipe ini memang ada di build kamu
-    ''
+    msg.documentWithCaptionMessage?.message?.caption || ''
   );
 }
 
@@ -29,10 +28,9 @@ function logIncomingMessage(m) {
     const shortFrom   = jidToLid(from);
     const shortSender = jidToLid(sender);
 
-    // tipe pesan
+    // type message
     const type = Object.keys(m.message || {})[0] || 'unknown';
 
-    // log rapi dengan garis
     const topLine    = '';
     const bottomLine = '';
 
